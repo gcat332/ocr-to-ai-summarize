@@ -26,6 +26,7 @@ export async function summarizeText(text) {
         }
       ],
       "tax": "ภาษี (ถ้ามี)",
+      "discount": "ส่วนลด (ถ้ามี)",
       "total": "ราคารวม",
       "payment_method": "วิธีชำระเงิน (ถ้ามี)",
       "notes": "หมายเหตุเพิ่มเติม เช่น คำขอบคุณ เบอร์โทรศัพท์ หรือข้อมูลอื่น ๆ"
@@ -45,24 +46,19 @@ export async function summarizeText(text) {
   return unwrapAndParseJson(response);
 }
 
+// clean markdown
 function unwrapAndParseJson(raw) {
   try {
-    // 1. Remove markdown block like ```json ... ```
     let cleaned = raw.trim();
     if (cleaned.startsWith('```json') || cleaned.startsWith('```')) {
       cleaned = cleaned.replace(/```json|```/gi, '').trim();
     }
-
-    // 2. Check if cleaned is a quoted JSON string (stringified string)
     if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
-      // Remove wrapping quotes, then unescape
-      cleaned = JSON.parse(cleaned); // Now it's a real JSON string
+      cleaned = JSON.parse(cleaned); 
     }
-
-    // 3. Parse final JSON
-    return JSON.parse(cleaned); // Now should be the real object
+    return JSON.parse(cleaned);
   } catch (err) {
-    console.error('❌ ไม่สามารถแปลง JSON ได้:', err.message);
+    console.error('JSON cleaning Error:', err.message);
     return null;
   }
 }
